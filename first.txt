@@ -38,3 +38,9 @@ if not exist "jdk-!version!\bin\java.exe" (
     exit /b 1
 )
 echo %date% %time% - Definition de JAVA_HOME sur le dossier jdk-!version!
+set "JAVA_HOME=%CD%\jdk-!version!"
+setx JAVA_HOME "!JAVA_HOME!"
+echo %date% %time% - JAVA_HOME defini sur !JAVA_HOME!
+set "current_path=!PATH!"
+set "new_path="
+echo %date% %time% - Mise a jour du repertoire...
