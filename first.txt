@@ -44,3 +44,14 @@ echo %date% %time% - JAVA_HOME defini sur !JAVA_HOME!
 set "current_path=!PATH!"
 set "new_path="
 echo %date% %time% - Mise a jour du repertoire...
+if !match! equ 0 (
+    if "!new_path!"=="" (
+        set "new_path=!part!"
+    ) else (
+        set "new_path=!new_path!;!part!"
+    )
+)
+set "new_path=!JAVA_HOME!\bin;!new_path!"
+setx PATH "!new_path!"
+echo %date% %time% - PATH mis a jour. Ouvrez une nouvelle invite de commande pour voir les changements.
+exit /b 0
