@@ -25,3 +25,16 @@ if not !found! == 1 (
     echo %date% %time% - Aucun dossier Java trouve.
     exit /b 1
 )
+exit /b 0
+if "%1"=="global" (
+    if "%2"=="" (
+        echo %date% %time% - Veuillez specifier une version.
+        exit /b 1
+    )
+)
+set "version=%2"
+if not exist "jdk-!version!\bin\java.exe" (
+    echo %date% %time% - La version specifiee !version! n'existe pas ou le dossier est incorrect.
+    exit /b 1
+)
+echo %date% %time% - Definition de JAVA_HOME sur le dossier jdk-!version!
