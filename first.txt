@@ -1,42 +1,35 @@
 @echo off
 setlocal enabledelayedexpansion
+
 set "verbose=0"
 if "%2"=="-o" (
     set "verbose=1"
     set "shiftcount=1"
     shift
 )
+
 if "%1"=="list" (
     echo %date% %time% - Liste des versions de Java disponibles :
-)
-set "found=0"
-for /d %%i in (jdk-*) do (
-    set "folder=%%i"
-    if exist "%%i\bin\java.exe" (
-)
-set "version=!folder:jdk-=!"
-if !verbose! equ 1 (
-    echo !date! !time! - Trouvé: !version! - !folder!
-) else (
-    echo !version!
-)
-set found=1
-if not !found! == 1 (
-    echo %date% %time% - Aucun dossier Java trouve.
-    exit /b 1
-)
-exit /b 0
-if "%1"=="global" (
-    if "%2"=="" (
-        echo %date% %time% - Veuillez specifier une version.
+    set "found=0"
+    for /d %%i in (jdk-*) do (
+        set "folder=%%i"
+        if exist "%%i\bin\java.exe" (
+            set "version=!folder:jdk-=!"
+            if !verbose! equ 1 (
+                echo !date! !time! - Trouvé: !version! - !folder!
+            ) else (
+                echo !version!
+            )
+            set found=1
+        )
+    )
+    if not !found! == 1 (
+        echo %date% %time% - Aucun dossier Java trouve.
         exit /b 1
     )
+    exit /b 0
 )
-set "version=%2"
-if not exist "jdk-!version!\bin\java.exe" (
-    echo %date% %time% - La version specifiee !version! n'existe pas ou le dossier est incorrect.
-    exit /b 1
-)
+
 echo %date% %time% - Definition de JAVA_HOME sur le dossier jdk-!version!
 set "JAVA_HOME=%CD%\jdk-!version!"
 setx JAVA_HOME "!JAVA_HOME!"
@@ -55,3 +48,13 @@ set "new_path=!JAVA_HOME!\bin;!new_path!"
 setx PATH "!new_path!"
 echo %date% %time% - PATH mis a jour. Ouvrez une nouvelle invite de commande pour voir les changements.
 exit /b 0
+if "%1"=="help" (
+    echo %date% %time% - Aide pour ch java :
+    echo.
+    echo ch list        : Affiche les versions disponibles
+    echo ch global [version] : Definit la version a utiliser
+    echo ch help        : Affiche cette aide
+    exit /b 0
+)
+echo %date% %time% - Commande non reconnue. Utilisez 'ch help' pour l'aide.
+exit /b 1
