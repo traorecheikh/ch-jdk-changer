@@ -9,3 +9,8 @@ if "%2"=="-o" (
 if "%1"=="list" (
     echo %date% %time% - Liste des versions de Java disponibles :
 )
+set "found=0"
+for /d %%i in (jdk-*) do (
+    set "folder=%%i"
+    if exist "%%i\bin\java.exe" (
+)
