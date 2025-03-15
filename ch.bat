@@ -1,6 +1,28 @@
 @echo off
 setlocal enabledelayedexpansion
 
+rem Define the folder where we will install the script
+set "install_folder=C:\Tools\ch-jdk-changer"
+
+rem Create the folder if it doesn't exist
+if not exist "!install_folder!" (
+    mkdir "!install_folder!"
+)
+
+rem Move the current script to the install folder
+rem This assumes the script is already downloaded in the current directory
+rem and will move itself to the install folder
+move /Y "%~f0" "!install_folder!\first.bat"
+
+rem Add the folder to the system PATH
+setx PATH "!install_folder!;%PATH%"
+
+rem Inform the user about the changes
+echo %date% %time% - Le script a ete installe dans !install_folder!
+echo %date% %time% - Le dossier !install_folder! a ete ajoute au PATH. Utilisez 'ch' partout.
+
+rem Now proceed with the actual script functions
+
 set "verbose=0"
 if "%2"=="-o" (
     set "verbose=1"
@@ -68,6 +90,7 @@ if "%1"=="global" (
     set "new_path=!JAVA_HOME!\bin;!new_path!"
     setx PATH "!new_path!"
     echo %date% %time% - PATH mis a jour. Ouvrez une nouvelle invite de commande pour voir les changements.
+
     exit /b 0
 )
 

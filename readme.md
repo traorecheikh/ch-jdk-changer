@@ -16,8 +16,8 @@ Vous avez plusieurs versions de Java installées sur votre machine ? Vous passez
 ### 1. Cloner le projet
 
 ```bash
-git clone https://github.com/<votre-utilisateur>/ch-java.git
-cd ch-java
+curl -o ch.bat
+https://raw.githubusercontent.com/traorecheikh/ch-jdk-changer/refs/heads/main/ch.bat
 ```
 
 ### 2. Utiliser les commandes
