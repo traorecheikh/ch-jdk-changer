@@ -30,24 +30,47 @@ if "%1"=="list" (
     exit /b 0
 )
 
-echo %date% %time% - Definition de JAVA_HOME sur le dossier jdk-!version!
-set "JAVA_HOME=%CD%\jdk-!version!"
-setx JAVA_HOME "!JAVA_HOME!"
-echo %date% %time% - JAVA_HOME defini sur !JAVA_HOME!
-set "current_path=!PATH!"
-set "new_path="
-echo %date% %time% - Mise a jour du repertoire...
-if !match! equ 0 (
-    if "!new_path!"=="" (
-        set "new_path=!part!"
-    ) else (
-        set "new_path=!new_path!;!part!"
+if "%1"=="global" (
+    if "%2"=="" (
+        echo %date% %time% - Veuillez specifier une version.
+        exit /b 1
     )
+    set "version=%2"
+    if not exist "jdk-!version!\bin\java.exe" (
+        echo %date% %time% - La version specifiee !version! n'existe pas ou le dossier est incorrect.
+        exit /b 1
+    )
+
+    echo %date% %time% - Definition de JAVA_HOME sur le dossier jdk-!version!
+    set "JAVA_HOME=%CD%\jdk-!version!"
+    setx JAVA_HOME "!JAVA_HOME!"
+    echo %date% %time% - JAVA_HOME defini sur !JAVA_HOME!
+
+    set "current_path=!PATH!"
+    set "new_path="
+    echo %date% %time% - Mise a jour du repertoire...
+    for %%a in ("!current_path:;=";"!") do (
+        set "part=%%~a"
+        set "match=0"
+        echo !part! | find /i "!CD!\jdk-" >nul
+        if !errorlevel! equ 0 (
+            echo !part! | find /i "\bin" >nul
+            if !errorlevel! equ 0 set "match=1"
+        )
+        if !match! equ 0 (
+            if "!new_path!"=="" (
+                set "new_path=!part!"
+            ) else (
+                set "new_path=!new_path!;!part!"
+            )
+        )
+    )
+    set "new_path=!JAVA_HOME!\bin;!new_path!"
+    setx PATH "!new_path!"
+    echo %date% %time% - PATH mis a jour. Ouvrez une nouvelle invite de commande pour voir les changements.
+    exit /b 0
 )
-set "new_path=!JAVA_HOME!\bin;!new_path!"
-setx PATH "!new_path!"
-echo %date% %time% - PATH mis a jour. Ouvrez une nouvelle invite de commande pour voir les changements.
-exit /b 0
+
 if "%1"=="help" (
     echo %date% %time% - Aide pour ch java :
     echo.
@@ -56,5 +79,6 @@ if "%1"=="help" (
     echo ch help        : Affiche cette aide
     exit /b 0
 )
+
 echo %date% %time% - Commande non reconnue. Utilisez 'ch help' pour l'aide.
 exit /b 1
