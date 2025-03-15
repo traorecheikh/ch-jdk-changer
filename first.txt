@@ -14,3 +14,14 @@ for /d %%i in (jdk-*) do (
     set "folder=%%i"
     if exist "%%i\bin\java.exe" (
 )
+set "version=!folder:jdk-=!"
+if !verbose! equ 1 (
+    echo !date! !time! - Trouvé: !version! - !folder!
+) else (
+    echo !version!
+)
+set found=1
+if not !found! == 1 (
+    echo %date% %time% - Aucun dossier Java trouve.
+    exit /b 1
+)
