@@ -30,7 +30,7 @@ ch list
 - **Changer de version Java :**
 
 ```bash
-ch global jdk-17
+ch global 17
 ```
 
 - **Besoin d’aide ?** C’est facile :
