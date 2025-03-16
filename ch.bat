@@ -1,21 +1,16 @@
 @echo off
 setlocal enabledelayedexpansion
 
+rem Installer block – copy script into fixed folder and add to PATH if not already installed
 set "install_folder=C:\Tools\ch-jdk-changer"
-
 if /i "%~dp0"=="!install_folder!\" (
     goto :start_script
 )
-
-rem Create the folder if it doesn't exist
 if not exist "!install_folder!" (
     mkdir "!install_folder!"
 )
-
 copy /Y "%~f0" "!install_folder!\ch.bat"
-
 setx PATH "!install_folder!;%PATH%"
-
 echo Script installe dans !install_folder!
 echo !install_folder! ajoute au PATH. Utilisez 'ch' partout.
 exit /b
@@ -125,29 +120,40 @@ if "%1"=="global" (
     echo Definition de JAVA_HOME sur le dossier !folder!
     setx JAVA_HOME "!folder!"
     
-    set "literal_path=%%JAVA_HOME%%\bin"
+    rem Use the resolved folder's bin path
+    set "literal_path=!folder!\bin"
     
-    setlocal enabledelayedexpansion
+    rem Retrieve the current PATH from registry
     set "original_path="
     for /f "tokens=3*" %%A in ('reg query HKCU\Environment /v Path 2^>nul ^| findstr /i "Path"') do (
         set "original_path=%%A %%B"
     )
-    echo Verification de la presence de !literal_path! dans le PATH.
-    echo !original_path! | findstr /i /c:"!literal_path!" >nul
-    if errorlevel 1 (
-        echo Ajout de !literal_path! au PATH.
-        if defined original_path (
-            set "new_path=!literal_path!;!original_path!"
-        ) else (
-            set "new_path=!literal_path!"
+    
+    rem Rebuild PATH filtering out any token that contains \Java\jdk- or \Java\openjdk-
+    set "filtered_path="
+    for %%P in ("!original_path:;=";"!") do (
+        set "token=%%~P"
+        echo !token! | findstr /i "\\Java\\jdk-" >nul
+        if errorlevel 1 (
+            echo !token! | findstr /i "\\Java\\openjdk-" >nul
+            if errorlevel 1 (
+                if defined filtered_path (
+                    set "filtered_path=!filtered_path!;!token!"
+                ) else (
+                    set "filtered_path=!token!"
+                )
+            )
         )
-        setx PATH "!new_path!"
-        echo PATH mis a jour avec !literal_path!.
-    ) else (
-        echo !literal_path! est deja dans le PATH.
     )
-    endlocal
-
+    
+    rem Prepend the new literal_path to the filtered PATH
+    echo Verification de la presence de !literal_path! dans le PATH.
+    rem (No need to check if already present because we removed any prior Java paths)
+    set "new_path=!literal_path!;!filtered_path!"
+    echo Ajout de !literal_path! au PATH.
+    setx PATH "!new_path!"
+    echo PATH mis a jour avec !literal_path!.
+    
     echo JAVA_HOME mis a jour pour la version !version!. Ouvrez une nouvelle invite de commande pour voir les changements.
     exit /b 0
 )
