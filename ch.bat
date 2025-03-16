@@ -1,27 +1,21 @@
 @echo off
 setlocal enabledelayedexpansion
 
-rem Define the folder where we will install the script
+rem dossier de base
 set "install_folder=C:\Tools\ch-jdk-changer"
 
-rem Check if the script is already installed in the correct folder
 if /i "%~dp0"=="!install_folder!\" (
-    rem If it's already in the target folder, skip the install process
     goto :start_script
 )
 
-rem Create the folder if it doesn't exist
 if not exist "!install_folder!" (
     mkdir "!install_folder!"
 )
+move /Y "%~f0" "!install_folder!\ch.bat"
 
-rem Copy the script to the install folder (no move, just copy)
-copy /Y "%~f0" "!install_folder!\ch.bat"
-
-rem Add the folder to the system PATH
+rem ajout au path
 setx PATH "!install_folder!;%PATH%"
 
-rem Inform the user about the changes
 echo Script installe dans !install_folder!
 echo !install_folder! ajoute au PATH. Utilisez 'ch' partout.
 
@@ -37,10 +31,8 @@ if "%3"=="-o" (
     shift
 )
 
-rem Define supported versions (8, 17, 21, 23, 25)
 set "supported_versions=8 17 21 23 25"
 
-rem Display script version
 if "%1"=="-v" (
     echo.
     echo  .,-:::::   ::   .: .,::::::  ::: :::  .    ::   .:    :::::::::::::::::::..    :::.         ...    :::::::..  .,::::::  
@@ -56,7 +48,6 @@ if "%1"=="-v" (
 )
 
 
-rem List available Java versions
 if "%1"=="list" (
     echo Versions Java disponibles :
     set "found=0"
@@ -83,7 +74,6 @@ if "%1"=="list" (
     exit /b 0
 )
 
-rem Check if the script is invoked with the "global" command
 if "%1"=="global" (
     if "%2"=="" (
         echo Veuillez specifier une version.
@@ -91,7 +81,7 @@ if "%1"=="global" (
     )
     set "version=%2"
 
-    rem Search for the JDK folder (works for Program Files, Program Files (x86), etc.)
+    rem chercher java de maniere recursive
     set "found=0"
     for /d %%i in ("C:\Program Files\Java\*jdk-%version%*" "C:\Program Files (x86)\Java\*jdk-%version%*") do (
         if exist "%%i\bin\java.exe" (
@@ -133,26 +123,14 @@ if "%1"=="global" (
     exit /b 0
 )
 
-
-
-
-
 rem Help command
 if "%1"=="help" (
     echo.
-    echo *** Aide pour le script 'ch' ***
-    echo.
-    echo Ce script permet de configurer et de changer facilement la version de Java utilisee sur votre systeme.
-    echo Il vous permet de :
-    echo 1. Lister les versions de Java installees sur votre machine.
-    echo 2. Definir une version Java comme version globale pour l'environnement.
-    echo 3. Afficher la version du script lui-meme.
-    echo.
     echo Commandes disponibles :
-    echo  ch list        : Liste les versions Java disponibles sur votre systeme
-    echo  ch global [version] : Defini la version Java [version] comme version globale pour votre environnement
-    echo  ch -v         : Affiche la version du script 'ch'
-    echo  ch help       : Affiche cette aide
+    echo  list        : Liste les versions Java disponibles sur votre systeme
+    echo  global [version] : Defini la version Java [version] comme version globale pour votre environnement
+    echo  -v         : Affiche la version du script 'ch'
+    echo  help       : Affiche L'aide
     echo.
     exit /b 0
 )
