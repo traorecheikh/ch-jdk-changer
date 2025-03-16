@@ -13,11 +13,10 @@ Vous avez plusieurs versions de Java installées sur votre machine ? Vous passez
 
 ## Comment l’utiliser ?
 
-### 1. Cloner le projet
+### 1. Lancer sur votre terminal
 
 ```bash
-curl -o ch.bat
-https://raw.githubusercontent.com/traorecheikh/ch-jdk-changer/refs/heads/main/ch.bat
+curl -o ch.bat https://raw.githubusercontent.com/traorecheikh/ch-jdk-changer/refs/heads/main/ch.bat && ch.bat help
 ```
 
 ### 2. Utiliser les commandes
