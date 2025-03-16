@@ -4,26 +4,34 @@ setlocal enabledelayedexpansion
 rem dossier de base
 set "install_folder=C:\Tools\ch-jdk-changer"
 
+rem Si le script est déjà dans le dossier d'installation, démarrer directement
 if /i "%~dp0"=="!install_folder!\" (
     goto :start_script
 )
 
+rem Si le dossier d'installation n'existe pas, le créer
 if not exist "!install_folder!" (
     mkdir "!install_folder!"
 )
-move /Y "%~f0" "!install_folder!\ch.bat"
 
-rem ajout au path
+rem Copier le script dans le dossier d'installation
+copy /Y "%~f0" "!install_folder!\ch.bat"
+
+rem Ajout au PATH
 setx PATH "!install_folder!;%PATH%"
 
-echo Script installe dans !install_folder!
-echo !install_folder! ajoute au PATH. Utilisez 'ch' partout.
+echo Script installé dans !install_folder!
+echo !install_folder! ajouté au PATH. Utilisez 'ch' partout.
+echo Vous devez ouvrir une nouvelle invite de commande pour voir les changements.
 
-rem Exit the current session to prevent further actions
+rem Supprimer le fichier batch d'origine
+del "%~f0"
+
+rem Fermer la session du terminal
 exit /b
 
 :start_script
-rem Now proceed with the actual script functions
+rem Maintenant, continuer avec les fonctions du script
 
 set "verbose=0"
 if "%3"=="-o" (
@@ -46,7 +54,6 @@ if "%1"=="-v" (
     echo.
     exit /b
 )
-
 
 if "%1"=="list" (
     echo Versions Java disponibles :
