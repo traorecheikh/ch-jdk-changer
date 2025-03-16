@@ -16,9 +16,10 @@ Vous avez plusieurs versions de Java installées sur votre machine ? Vous passez
 ### 1. Lancer sur votre terminal
 
 ```bash
-curl -o ch.bat https://raw.githubusercontent.com/traorecheikh/ch-jdk-changer/refs/heads/main/ch.bat && ch.bat help
+curl -o ch.bat https://raw.githubusercontent.com/traorecheikh/ch-jdk-changer/refs/heads/main/ch.bat
 ```
 
+- **lancez ch -v sur le terminal ensuite vous fermer le terminal et ouvrez un nouveau**
 ### 2. Utiliser les commandes
 
 - **Lister les versions de Java :**
