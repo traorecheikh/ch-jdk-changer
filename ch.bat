@@ -58,7 +58,7 @@ if "%1"=="list" (
     for %%v in (%supported_versions%) do (
         for /d %%i in (
             "C:\Program Files\Java\jdk*-%%v*"
-            "C:\Program Files\Java\*graalvm-jdk-%%v*"
+            "C:\Program Files\Java\graalvm*-%%v*"
             "C:\Program Files (x86)\Java\jdk*-%%v*"
             "C:\Program Files\Java\*openjdk-%%v*"
             "C:\Program Files (x86)\Java\*openjdk-%%v*"
