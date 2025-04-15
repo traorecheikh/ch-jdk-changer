@@ -16,7 +16,7 @@ Vous avez plusieurs versions de Java installées sur votre machine ? Vous passez
 ### 1. Lancer sur votre terminal
 
 ```bash
-curl -o ch.bat https://raw.githubusercontent.com/traorecheikh/ch-jdk-changer/refs/heads/main/ch.bat
+curl -o ch.bat https://raw.githubusercontent.com/traorecheikh/ch-jdk-changer/refs/heads/main/ch.bat && echo. & echo Merci d'avoir installe ch-jdk-changer ! Utilisez 'ch help' pour voir les commandes disponibles.
 ```
 
 - **lancez ch -v sur le terminal ensuite vous fermer le terminal et ouvrez un nouveau**
