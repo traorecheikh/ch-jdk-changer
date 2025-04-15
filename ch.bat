@@ -30,7 +30,7 @@ if "%3"=="-o" (
     shift
 )
 
-set "supported_versions=8 17 21 23 24 25 G17 G21 G23"
+set "supported_versions=8 17 21 23 24 25"
 
 rem Display script version
 if "%1"=="-v" (
@@ -58,6 +58,7 @@ if "%1"=="list" (
     for %%v in (%supported_versions%) do (
         for /d %%i in (
             "C:\Program Files\Java\*jdk-%%v*"
+            "C:\Program Files\Java\*graalvm-jdk-%%v*"
             "C:\Program Files (x86)\Java\*jdk-%%v*"
             "C:\Program Files\Java\*openjdk-%%v*"
             "C:\Program Files (x86)\Java\*openjdk-%%v*"
