@@ -5,7 +5,7 @@
 Change la version java avec une simple commande car jongler avec les différentes versions de Java peut être un vrai casse-tête. 
 ## Pourquoi ce script est-il indispensable ?
 
-Vous avez plusieurs versions de Java installées sur votre machine ? Vous passez votre temps à changer de version à chaque projet ? c'est pour vous
+Vous avez plusieurs versions de Java installées sur votre machine ? Vous passez votre temps à changer de version à chaque projet vraiment ? voici la solution donc 
 
 - **Changer de version Java ?**
 - **Lister toutes les versions installées ?**
@@ -16,7 +16,7 @@ Vous avez plusieurs versions de Java installées sur votre machine ? Vous passez
 ### 1. Lancer sur votre terminal
 
 ```bash
-curl -o ch.bat https://raw.githubusercontent.com/traorecheikh/ch-jdk-changer/refs/heads/main/ch.bat && echo. & echo Merci d'avoir installe ch-jdk-changer ! Utilisez 'ch help' pour voir les commandes disponibles.
+curl -o ch.bat https://raw.githubusercontent.com/traorecheikh/ch-jdk-changer/refs/heads/main/ch.bat && echo. & echo Merci <3 ! Utilisez 'ch help' pour voir les commandes disponibles.
 ```
 
 - **lancez ch -v sur le terminal ensuite vous fermer le terminal et ouvrez un nouveau**
@@ -42,7 +42,7 @@ ch help
 
 ## Pourquoi c’est cool ?
 
-Parce que gerer les versions de Java, c'est chiant. Ce script rend les choses simples. Vous n’avez pas besoin de chercher dans les entrailles de votre terminal ou d’essayer de vous rappeler quelle version de Java correspond à quel projet. Vous indiquez juste la version, et hop, tout est configuré.
+Parce que gerer les versions de Java, c'est chiant. ch jdk rend les choses simples. Vous n’avez pas besoin de chercher dau fin fond de votre terminal ou d’essayer de vous rappeler quelle version de Java correspond à quel projet. Vous indiquez juste la version, et hop, tout est configuré.
 
 ## Contribution
 
@@ -50,6 +50,6 @@ Vous avez une idée nulle ou un bug (garder pour vous franchement ) ? Ouvrez une
 
 ## Licence
 
-C’est open-source, donc vous pouvez faire ce que vous voulez (ou presque). Voir [LICENSE](LICENSE).
+C’est open-source, donc vous pouvez faire ce que vous--- (ou presque). Voir [LICENSE](LICENSE).
 
 ---
