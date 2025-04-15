@@ -13,6 +13,7 @@ copy /Y "%~f0" "!install_folder!\ch.bat"
 setx PATH "!install_folder!;%PATH%"
 echo Script installe dans !install_folder!
 echo !install_folder! ajoute au PATH. Utilisez 'ch' partout.
+if exist "!install_folder!\ch.bat" del /q "%~f0"
 exit /b
 
 :start_script
