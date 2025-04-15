@@ -6,6 +6,12 @@ set "install_folder=C:\Tools\ch-jdk-changer"
 if /i "%~dp0"=="!install_folder!\" (
     goto :start_script
 )
+
+rem Check if already installed
+if exist "!install_folder!\ch.bat" (
+    goto :start_script
+)
+
 if not exist "!install_folder!" (
     mkdir "!install_folder!"
 )
