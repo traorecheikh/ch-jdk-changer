@@ -23,7 +23,7 @@ if "%3"=="-o" (
     shift
 )
 
-set "supported_versions=8 17 21 23 25"
+set "supported_versions=8 17 20 21 23 24 25"
 
 rem Display script version
 if "%1"=="-v" (
