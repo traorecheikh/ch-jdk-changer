@@ -6,12 +6,6 @@ set "install_folder=C:\Tools\ch-jdk-changer"
 if /i "%~dp0"=="!install_folder!\" (
     goto :start_script
 )
-
-rem Check if already installed
-if exist "!install_folder!\ch.bat" (
-    goto :start_script
-)
-
 if not exist "!install_folder!" (
     mkdir "!install_folder!"
 )
@@ -19,7 +13,6 @@ copy /Y "%~f0" "!install_folder!\ch.bat"
 setx PATH "!install_folder!;%PATH%"
 echo Script installe dans !install_folder!
 echo !install_folder! ajoute au PATH. Utilisez 'ch' partout.
-if exist "!install_folder!\ch.bat" del /q "%~f0"
 exit /b
 
 :start_script
@@ -30,7 +23,7 @@ if "%3"=="-o" (
     shift
 )
 
-set "supported_versions=8 17 21 23 24 25"
+set "supported_versions=8 17 21 23 25"
 
 rem Display script version
 if "%1"=="-v" (
@@ -57,9 +50,8 @@ if "%1"=="list" (
     set "found=0"
     for %%v in (%supported_versions%) do (
         for /d %%i in (
-            "C:\Program Files\Java\jdk*-%%v*"
-            "C:\Program Files\Java\graalvm*-%%v*"
-            "C:\Program Files (x86)\Java\jdk*-%%v*"
+            "C:\Program Files\Java\*jdk-%%v*"
+            "C:\Program Files (x86)\Java\*jdk-%%v*"
             "C:\Program Files\Java\*openjdk-%%v*"
             "C:\Program Files (x86)\Java\*openjdk-%%v*"
         ) do (
