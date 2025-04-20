@@ -1,7 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
 
-rem Installer block – copy script into fixed folder and add to PATH if not already installed
 set "install_folder=C:\Tools\ch-jdk-changer"
 if /i "%~dp0"=="!install_folder!\" (
     goto :start_script
@@ -23,7 +22,7 @@ if "%3"=="-o" (
     shift
 )
 
-set "supported_versions=8 17 20 21 23 24 25"
+set "supported_versions=8 11 17 20 21 22 23 24 25"
 
 rem Display script version
 if "%1"=="-v" (
@@ -59,7 +58,7 @@ if "%1"=="list" (
                 if !verbose! equ 1 (
                     echo Trouve: %%v - %%i
                 ) else (
-                    echo %%v
+                    echo  - jdk %%v
                 )
                 set "found=1"
             )
@@ -146,16 +145,18 @@ if "%1"=="global" (
         )
     )
     
-    rem Prepend the new literal_path to the filtered PATH
+      rem Prepend the new literal_path to the filtered PATH
     echo Verification de la presence de !literal_path! dans le PATH.
     rem (No need to check if already present because we removed any prior Java paths)
     set "new_path=!literal_path!;!filtered_path!"
     echo Ajout de !literal_path! au PATH.
-    setx PATH "!new_path!"
+
+    powershell -Command "[Environment]::SetEnvironmentVariable('Path', '!new_path!', 'User')"
+
     echo PATH mis a jour avec !literal_path!.
-    
     echo JAVA_HOME mis a jour pour la version !version!. Ouvrez une nouvelle invite de commande pour voir les changements.
     exit /b 0
+
 )
 
 rem Help command
