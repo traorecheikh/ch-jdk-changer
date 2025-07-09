@@ -1,4 +1,6 @@
-# ch-java
+# ch-java (pour Windows)
+
+**Note:** Ce script (`ch.bat`) est un utilitaire simple pour les utilisateurs de Windows souhaitant changer rapidement de version de JDK via la ligne de commande. Pour un gestionnaire de versions Java multi-plateforme plus complet, voir la documentation de [jenv (README.md)](README.md).
 
 ## Qu’est-ce que c’est ?
 
