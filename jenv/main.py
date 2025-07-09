@@ -1,125 +1,84 @@
+
 import typer
 from typing import List, Optional
 from pathlib import Path
 import os
-import platform # Import the platform module
+import platform
 import logging
-import sys # Ensure sys is imported for logging handler
+import sys
 
 from rich.console import Console
 from rich.table import Table
 
-from jenv import __version__ as jenv_app_version # Will create this __init__.py later
+from jenv import __version__ as jenv_app_version
 from jenv.discovery import discover_system_jdks, JdkInfo, get_java_version_from_path, get_jdk_name_and_vendor
 from jenv.settings import JENV_VERSION_ENV_VAR, JENV_VERSION_FILE, JENV_GLOBAL_VERSION_FILE, JENV_DIR, JENV_CUSTOM_PATHS_FILE
 from jenv.util import read_version_file, write_version_file, get_active_jdk_path_from_env
+
 
 
 app = typer.Typer(name="jenv", help="Java Environment Manager", invoke_without_command=True)
 console = Console()
 err_console = Console(stderr=True, style="bold red")
 
-# Configure logging
 logging.basicConfig(
-    level=os.environ.get("JENV_LOG_LEVEL", "WARNING").upper(), # Reverted from DEBUG
+    level=os.environ.get("JENV_LOG_LEVEL", "WARNING").upper(),
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stderr)] # Keep basic stderr for now
+    handlers=[logging.StreamHandler(sys.stderr)]
 )
 logger = logging.getLogger(__name__)
 
-# Need to import sys for the StreamHandler # This was moved to top-level imports
 
 def get_currently_active_jdk() -> Optional[JdkInfo]:
-    """
-    Determines the currently active JDK based on environment, local, shell, or global settings.
-    Returns JdkInfo for the active JDK, or None if system Java is active or none is found.
-    """
-    # 1. Check JENV_VERSION_ENV_VAR (set by 'jenv shell')
     jenv_version_env = os.environ.get(JENV_VERSION_ENV_VAR)
     if jenv_version_env:
-        # This implies jenv is managing it, need to find the JdkInfo for this version name
-        # This part requires resolving a version NAME to a JdkInfo object.
-        # For now, if it's set, we assume it's a path until we have better name resolution.
-        # This needs to be more robust to match the name used in 'jenv shell <name>'
-        # to an actual discovered JdkInfo object.
-        # Placeholder:
-        # potential_path = Path(jenv_version_env)
-        # if potential_path.is_dir():
-        #     version = get_java_version_from_path(potential_path)
-        #     if version:
-        #         name, vendor = get_jdk_name_and_vendor(potential_path, version)
-        #         # This doesn't easily know if it's jenv_managed or its "friendly name"
-        #         # Needs to search discovered JDKs for one matching jenv_version_env (name or path)
-        #         pass # Complex: requires searching discovered_jdks
-        # For now, let's assume JAVA_HOME reflects jenv shell if active
         current_java_home = get_active_jdk_path_from_env()
         if current_java_home:
-            # We need to check if this JAVA_HOME corresponds to a jenv-known JDK
-            # and if its name matches jenv_version_env for display purposes
-            # This is a simplified check. A full check would compare against discover_system_jdks()
             version = get_java_version_from_path(current_java_home)
             if version:
-                 # Attempt to match with a discovered JDK to get full JdkInfo
                 discovered_jdks = discover_system_jdks()
                 for jdk in discovered_jdks:
                     if jdk.path == current_java_home:
-                         # Check if this JDK's name matches what jenv shell might have set
-                         # This is still a bit heuristic.
-                         if jdk.name == jenv_version_env or str(jdk.path) == jenv_version_env:
+                        if jdk.name == jenv_version_env or str(jdk.path) == jenv_version_env:
                             return JdkInfo(version=jdk.version, name=f"{jdk.name} (shell: JENV_VERSION)", path=jdk.path, vendor=jdk.vendor, is_jenv_managed=jdk.is_jenv_managed)
-                # If not found in discovered (e.g. custom path set by JENV_VERSION), create a minimal JdkInfo
                 name, vendor = get_jdk_name_and_vendor(current_java_home, version)
                 return JdkInfo(version=version, name=f"{name} (shell: JENV_VERSION)", path=current_java_home, vendor=vendor)
 
-
-    # 2. Check .jenv-version file (set by 'jenv local')
-    # Traverse upwards from cwd to find .jenv-version
     current_dir = Path.cwd()
     jenv_version_path = None
-    while current_dir != current_dir.parent: # Stop at root
+    while current_dir != current_dir.parent:
         if (current_dir / JENV_VERSION_FILE).exists():
             jenv_version_path = current_dir / JENV_VERSION_FILE
             break
         current_dir = current_dir.parent
-    if (current_dir / JENV_VERSION_FILE).exists(): # Check root dir as well
-         jenv_version_path = current_dir / JENV_VERSION_FILE
+    if (current_dir / JENV_VERSION_FILE).exists():
+        jenv_version_path = current_dir / JENV_VERSION_FILE
 
     if jenv_version_path:
         local_version_name = read_version_file(jenv_version_path)
         if local_version_name:
-            # Resolve local_version_name to a JdkInfo object
             discovered_jdks = discover_system_jdks()
             for jdk in discovered_jdks:
-                # Match by name or path for flexibility
                 if jdk.name == local_version_name or str(jdk.path) == local_version_name:
                     return JdkInfo(version=jdk.version, name=f"{jdk.name} (local: {jenv_version_path})", path=jdk.path, vendor=jdk.vendor, is_jenv_managed=jdk.is_jenv_managed)
-            # If not found, it's a dangling reference, could indicate an issue or print warning.
-            # For now, we'll fall through. A 'doctor' command could diagnose this.
 
-
-    # 3. Check global version file (set by 'jenv global')
     if JENV_GLOBAL_VERSION_FILE.exists():
         global_version_name = read_version_file(JENV_GLOBAL_VERSION_FILE)
         if global_version_name:
-            # Resolve global_version_name to a JdkInfo object
             discovered_jdks = discover_system_jdks()
             for jdk in discovered_jdks:
                 if jdk.name == global_version_name or str(jdk.path) == global_version_name:
-                     return JdkInfo(version=jdk.version, name=f"{jdk.name} (global: {JENV_GLOBAL_VERSION_FILE})", path=jdk.path, vendor=jdk.vendor, is_jenv_managed=jdk.is_jenv_managed)
+                    return JdkInfo(version=jdk.version, name=f"{jdk.name} (global: {JENV_GLOBAL_VERSION_FILE})", path=jdk.path, vendor=jdk.vendor, is_jenv_managed=jdk.is_jenv_managed)
 
-
-    # 4. If none of the above, check current JAVA_HOME (system or externally set)
     current_java_home = get_active_jdk_path_from_env()
     if current_java_home:
         version = get_java_version_from_path(current_java_home)
         if version:
             name, vendor = get_jdk_name_and_vendor(current_java_home, version)
-            # Check if this JAVA_HOME matches any of the jenv discovered JDKs
             discovered_jdks = discover_system_jdks()
             for jdk in discovered_jdks:
                 if jdk.path == current_java_home:
                     return JdkInfo(version=jdk.version, name=f"{jdk.name} (JAVA_HOME)", path=jdk.path, vendor=jdk.vendor, is_jenv_managed=jdk.is_jenv_managed)
-            # If not in discovered list, it's an external JDK
             return JdkInfo(version=version, name=f"{name} (JAVA_HOME)", path=current_java_home, vendor=vendor)
 
     return None
@@ -531,39 +490,27 @@ def init_shell(
         err_console.print(f"Unsupported shell: {shell_name}. Supported shells are: {', '.join(SUPPORTED_SHELLS)}")
         raise typer.Exit(1)
 
-    # JENV_DIR should be used for constructing paths.
-    # SHIMS_DIR will be JENV_DIR / "shims"
-    # JENV_BIN_DIR for jenv executable itself (if self-contained) could be JENV_DIR / "bin"
-
     shims_dir = JENV_DIR / "shims"
     jenv_bin_dir = JENV_DIR / "bin" # Assuming jenv might place its own script here eventually
 
     output_lines = [f"# jenv initialization script for {shell_name}"]
 
+    
     if shell_name in ["bash", "zsh"]:
         output_lines.extend([
             f'export JENV_DIR="{JENV_DIR}"',
-            f'export PATH="{shims_dir}":"{jenv_bin_dir}":$PATH', # Shims first, then jenv bin, then original PATH
-            '# To be implemented: function to handle jenv shell, JAVA_HOME, etc.',
-            '# Example: _jenv_hook() { ... }',
-            '# if [ -n "$JENV_VERSION" ]; then ... manage JAVA_HOME ...; fi',
-            '# unset JENV_VERSION after use or rely on jenv exec to set JAVA_HOME per command',
-            '# Consider adding a jenv shell function for `jenv shell` command to work effectively',
+            f'export PATH="{shims_dir}:{jenv_bin_dir}:$PATH"',  # Fixed PATH format
             'jenv_shell_set() {',
             '  export JENV_VERSION="$1"',
-            '  # Optionally, immediately update JAVA_HOME here or rely on shims/exec',
             '}',
             'jenv_shell_unset() {',
             '  unset JENV_VERSION',
-            '  # Optionally, immediately update JAVA_HOME here or rely on shims/exec',
             '}',
-            '',
-            '# Minimal: Ensure shims are in path. Actual JAVA_HOME setting will be done by shims via `jenv internal exec`'
         ])
     elif shell_name == "fish":
         output_lines.extend([
             f'set -gx JENV_DIR "{JENV_DIR}"',
-            f'fish_add_path -mP "{shims_dir}"', # -m prepends, -P checks path first
+            f'fish_add_path -mP "{shims_dir}"',
             f'fish_add_path -mP "{jenv_bin_dir}"',
             '# To be implemented: function for jenv shell, JAVA_HOME',
             '# function jenv_shell_set; set -gx JENV_VERSION $argv[1]; end',
@@ -607,8 +554,6 @@ def rehash_shims():
     shims_dir.mkdir(parents=True, exist_ok=True)
 
     # TODO: Enhance this list, possibly by scanning JDK bin dirs
-    # For now, a common set. Actual executables depend on JDK type (e.g. no 'jjs' in newer JDKs sometimes)
-    # Let's try to get this list from the *currently active* JDK to be more dynamic.
 
     active_jdk = get_currently_active_jdk()
     commands_to_shim = []
@@ -620,15 +565,11 @@ def rehash_shims():
                 if item.is_file() and os.access(str(item), os.X_OK):
                     # Add executables, excluding potential .bat or .cmd on non-Windows
                     if platform.system() == "Windows":
-                        # On Windows, common shims are .bat files, or we rely on PATHEXT
-                        # For now, let's assume direct .exe or no extension for common commands
-                        if item.name.endswith(".exe") or "." not in item.name:
-                             commands_to_shim.append(item.name.replace(".exe", "")) # Shim name without .exe
-                        # We might also need to create .bat shims on Windows.
+                       if item.name.endswith(".exe") or "." not in item.name:
+                             commands_to_shim.append(item.name.replace(".exe", "")) # 
                     else: # Linux/macOS
                         if "." not in item.name or item.name.endswith(".sh"): # Avoid shimming e.g. .dylib or other non-direct executables
                              commands_to_shim.append(item.name)
-            # Ensure some very common ones if somehow missed by scan and it's a recognized JDK
             common_java_commands = ["java", "javac", "jar", "javadoc", "javap", "jps", "jstat", "jconsole", "jdb", "jshell"]
             for cmd in common_java_commands:
                 if cmd not in commands_to_shim and (jdk_bin_dir / cmd).exists():
@@ -644,12 +585,7 @@ def rehash_shims():
     # In a real installation, this path would be resolved correctly (e.g. sys.executable if jenv is a script, or a known install path)
     # For development, this is tricky. If we run `poetry run jenv rehash`, the shims need to call `jenv` not `poetry run jenv`.
     # This implies `jenv` must be installed in a way that it's directly on the PATH.
-    # For now, the shim will just call 'jenv'. This relies on `jenv init` adding `~/.jenv/bin` to PATH
-    # and us (later) putting a `jenv` wrapper/executable into `~/.jenv/bin`.
     jenv_executable_in_shim = "jenv"
-    # A more robust shim might try to find jenv based on JENV_DIR or a known relative path
-    # Or `jenv init` could bake the correct jenv path into the shims.
-    # For example, `sys.argv[0]` when `jenv rehash` is run could give the path to the jenv script.
 
     shim_template_posix = f"""#!/usr/bin/env sh
 # jenv shim for {{command_name}}
@@ -657,10 +593,7 @@ def rehash_shims():
 set -e
 exec "{jenv_executable_in_shim}" internal exec "{{command_name}}" "$@"
 """
-    # Windows shims are more complex. They are typically .bat files.
-    # For now, on Windows, we might rely on the system finding the .exe via PATHEXT
-    # and the shims directory being in PATH. The `jenv internal exec` handles .exe.
-    # A true Windows shim would be a .bat file.
+
     shim_template_windows_bat = f"""@echo off
 REM jenv shim for %~n0
 REM Generated by 'jenv rehash'
@@ -684,21 +617,9 @@ REM Generated by 'jenv rehash'
                 # Write the .bat shim
                 with open(bat_shim_path, "w") as f:
                     f.write(shim_content_bat)
-                # No chmod +x needed for .bat files.
-
-                # For the direct command_name file (e.g. 'java' not 'java.bat') on Windows,
-                # it's less clear how it would be invoked without shell specific behavior.
-                # Python's shims for console_scripts often create an exe wrapper.
-                # For now, the .bat shim is the most reliable for cmd.exe.
-                # PowerShell might use the extensionless one if in PATH.
-                # To be safe, also write the extensionless shim for non-bat execution contexts:
+                
                 if not command_name.endswith('.bat'): # Avoid double .bat.bat
-                    with open(shim_path, "w") as f: # Extensionless shim, content might need adjustment for Windows direct exec
-                        # This extensionless shim on Windows is problematic to make universally executable directly.
-                        # Let's make it also a .bat file, but named without .bat, if that's even possible to be useful.
-                        # Or, simply rely on the .bat shim and ensure it's created.
-                        # For now, the .bat shim is primary on Windows.
-                        # The extensionless shim will be POSIX-style for consistency, though its direct use on Win is limited.
+                    with open(shim_path, "w") as f: # 
                          f.write(shim_template_posix.format(command_name=command_name))
 
 
@@ -884,13 +805,6 @@ def internal_exec_command(
     try:
         # Replace jenv process with the target command
         if platform.system() == "Windows":
-            # os.execvpe is not ideal on Windows due to PATH handling / process creation.
-            # subprocess.call is more reliable for launching executables.
-            # However, it doesn't replace the current process. For shims, this might be acceptable
-            # if the overhead is minimal, or we accept the shim process remains.
-            # For true process replacement, a C helper or more complex psutil usage might be needed.
-            # Let's use subprocess.run for now, acknowledging it's not a true `exec`.
-            # The exit code of the child process should be propagated.
             completed_process = subprocess.run(args_for_exec, env=env, check=False) # check=False to handle exit code manually
             raise typer.Exit(completed_process.returncode)
         else:
