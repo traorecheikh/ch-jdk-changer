@@ -47,6 +47,13 @@ Once `jenv` is published to PyPI (Python Package Index), you can install it usin
 ```bash
 pip install jenv
 ```
+jenv rehash
+
+export PATH="$HOME/.jenv/shims:$HOME/.jenv/bin:$PATH"
+export JENV_DIR="$HOME/.jenv"
+export PATH="$JENV_DIR/shims:$JENV_DIR/bin:$PATH"
+eval "$(jenv init zsh)"
+
 
 Make sure your Python scripts directory is on your system's PATH to run `jenv` directly after installation.
 
