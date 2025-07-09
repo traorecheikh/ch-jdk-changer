@@ -2,7 +2,7 @@
 name = "jenv"
 version = "0.1.0"
 description = "Java Environment Manager"
-authors = ["Jules <agent@example.com>"]
+authors = ["Your Name <you@example.com>"] # TODO: Update with your actual name and email
 license = "MIT"
 readme = "README.md"
 

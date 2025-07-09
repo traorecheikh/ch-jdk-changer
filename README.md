@@ -19,9 +19,9 @@ Inspired by tools like `rbenv` and `pyenv`.
 
 ## Installation
 
-_(This section will be updated once distribution mechanisms are in place. For now, development setup is via Poetry.)_
+**Note:** `jenv` is currently under active development. The primary way to use it is by setting up a development environment. A packaged version for easy end-user installation is planned for the future.
 
-### Development Setup
+### 1. Development Setup (For Contributors or Advanced Users)
 
 1.  Clone the repository:
     ```bash
@@ -36,6 +36,19 @@ _(This section will be updated once distribution mechanisms are in place. For no
     ```bash
     poetry shell
     ```
+    This makes the `jenv` command available in your current shell.
+
+### 2. End-User Installation (via pip)
+
+Once `jenv` is published to PyPI (Python Package Index), you can install it using pip:
+
+```bash
+pip install jenv
+```
+
+Make sure your Python scripts directory is on your system's PATH to run `jenv` directly after installation.
+
+(If you are the developer and have just packaged it, you might install it from a local wheel file first for testing, e.g., `pip install dist/jenv-0.1.0-py3-none-any.whl`)
 
 ## Setup
 
@@ -140,6 +153,60 @@ Contributions are welcome! Please feel free to open an issue or submit a pull re
 *   Code formatting: (Consider Black or Ruff Formatter)
 *   Linting: (Consider Ruff or Flake8)
 
+### Building and Publishing (For Developers/Maintainers)
+
+If you are a developer of `jenv` and want to create a distributable package or publish it to PyPI:
+
+1.  **Ensure `pyproject.toml` is up-to-date:**
+    *   Verify the `version` number (e.g., increment if releasing a new version).
+    *   Ensure author and other metadata are correct.
+2.  **Install Poetry** if you haven't already:
+    ```bash
+    pip install poetry
+    ```
+3.  **Build the package:**
+    This command creates the source archive (sdist) and a wheel file in the `dist/` directory.
+    ```bash
+    poetry build
+    ```
+4.  **Check the package (optional but recommended):**
+    ```bash
+    poetry check
+    ```
+    You can also use `twine check dist/*` if you have Twine installed.
+5.  **Publish to TestPyPI (optional, recommended for testing the publishing process):**
+    *   You'll need an account on [TestPyPI](https://test.pypi.org/).
+    *   Configure Poetry to use TestPyPI (if you haven't already):
+        ```bash
+        poetry config repositories.testpypi https://test.pypi.org/legacy/
+        ```
+    *   Publish, providing your TestPyPI username and password when prompted:
+        ```bash
+        poetry publish -r testpypi
+        ```
+    *   You can then try installing from TestPyPI:
+        ```bash
+        pip install --index-url https://test.pypi.org/simple/ jenv
+        ```
+6.  **Publish to PyPI (Live):**
+    *   You'll need an account on [PyPI](https://pypi.org/).
+    *   Ensure you have configured API tokens or username/password with Poetry. Using API tokens is recommended.
+    *   Publish to PyPI:
+        ```bash
+        poetry publish
+        ```
+        Poetry will prompt for your PyPI credentials (or use a configured API token).
+
+**Important:** Publishing to PyPI is a live release. Ensure the package is stable and the version number is appropriate.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## Appendix: `ch.bat` - Simple Windows Java Switcher
+
+This repository also includes `ch.bat`, a lightweight, standalone batch script for quickly switching Java versions on Windows. It is a separate utility from the more comprehensive `jenv` Python application.
+
+For instructions on how to use `ch.bat`, please see its dedicated documentation: [ch.bat Usage (readme.md)](readme.md).
