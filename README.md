@@ -1,5 +1,7 @@
 # jenv - Java Environment Manager
 
+Crafted with ❤️ by Cheikh Tidiane
+
 **jenv** is a command-line tool to help you manage multiple Java Development Kit (JDK) installations on your system. It allows you to easily list, switch between, and (in the future) install different JDK versions.
 
 Inspired by tools like `rbenv` and `pyenv`.

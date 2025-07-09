@@ -265,7 +265,7 @@ def set_global_version(
 
 def _version_callback(value: bool):
     if value:
-        console.print(f"jenv version: {jenv_app_version}")
+        console.print(f"jenv version: {jenv_app_version} - Crafted with ❤️ by Cheikh Tidiane")
         raise typer.Exit()
 
 @app.callback()
