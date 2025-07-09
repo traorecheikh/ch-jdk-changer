@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "jenv"
+version = "0.1.0"
+description = "Java Environment Manager"
+authors = ["Jules <agent@example.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+typer = {extras = ["all"], version = "^0.9.0"}
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.0"
+pytest-mock = "^3.0"
+
+[tool.poetry.scripts]
+jenv = "jenv.main:app"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
