@@ -14,6 +14,7 @@ from jenv import __version__ as jenv_app_version
 from jenv.discovery import discover_system_jdks, JdkInfo, get_java_version_from_path, get_jdk_name_and_vendor
 from jenv.settings import JENV_VERSION_ENV_VAR, JENV_VERSION_FILE, JENV_GLOBAL_VERSION_FILE, JENV_DIR, JENV_CUSTOM_PATHS_FILE
 from jenv.util import read_version_file, write_version_file, get_active_jdk_path_from_env
+from jenv.downloader import JdkDownloader, MavenDownloader, DownloadError
 
 
 
@@ -815,6 +816,92 @@ def internal_exec_command(
     except Exception as e:
         err_console.print(f"jenv: Failed to execute command '{command_name}': {e}")
         raise typer.Exit(code=126) # Command invokeable but cannot execute
+
+
+@app.command(name="install", help="Download and install a JDK version.")
+def install_jdk(
+    version: str = typer.Argument(..., help="Version to install (e.g., 17, 21, 11)"),
+    vendor: str = typer.Option("temurin", "--vendor", "-v", help="JDK vendor (temurin, openjdk)"),
+    force: bool = typer.Option(False, "--force", "-f", help="Force reinstall if already installed"),
+):
+    """Download and install a JDK version from a supported vendor."""
+    try:
+        downloader = JdkDownloader()
+        
+        with console.status(f"Installing {vendor} JDK {version}..."):
+            install_path = downloader.download_jdk(version, vendor, force)
+        
+        console.print(f"✅ Successfully installed {vendor} JDK {version}")
+        console.print(f"📁 Installation path: {install_path}")
+        console.print(f"💡 Use 'jenv global {vendor}-{version}' to set as default")
+        
+    except DownloadError as e:
+        err_console.print(f"❌ Failed to install {vendor} JDK {version}: {e}")
+        raise typer.Exit(code=1)
+    except Exception as e:
+        err_console.print(f"❌ Unexpected error: {e}")
+        raise typer.Exit(code=1)
+
+
+@app.command(name="install-maven", help="Download and install a Maven version.")
+def install_maven(
+    version: str = typer.Argument(..., help="Maven version to install (e.g., 3.9.6)"),
+    force: bool = typer.Option(False, "--force", "-f", help="Force reinstall if already installed"),
+):
+    """Download and install a Maven version."""
+    try:
+        downloader = MavenDownloader()
+        
+        with console.status(f"Installing Maven {version}..."):
+            install_path = downloader.download_maven(version, force)
+        
+        console.print(f"✅ Successfully installed Maven {version}")
+        console.print(f"📁 Installation path: {install_path}")
+        console.print(f"💡 Add {install_path}/bin to your PATH to use Maven")
+        
+    except DownloadError as e:
+        err_console.print(f"❌ Failed to install Maven {version}: {e}")
+        raise typer.Exit(code=1)
+    except Exception as e:
+        err_console.print(f"❌ Unexpected error: {e}")
+        raise typer.Exit(code=1)
+
+
+@app.command(name="list-remote", help="List available JDK versions for download.")
+def list_remote_versions(
+    vendor: str = typer.Option("temurin", "--vendor", "-v", help="JDK vendor (temurin, openjdk)"),
+    jdk: bool = typer.Option(True, "--jdk/--no-jdk", help="Show JDK versions"),
+    maven: bool = typer.Option(False, "--maven", help="Show Maven versions"),
+):
+    """List available versions for download from supported vendors."""
+    try:
+        if maven:
+            console.print("📦 Available Maven Versions:")
+            downloader = MavenDownloader()
+            versions = downloader.list_available_versions()
+            if versions:
+                for version in versions[:10]:  # Show first 10
+                    console.print(f"  • {version}")
+                if len(versions) > 10:
+                    console.print(f"  ... and {len(versions) - 10} more")
+            else:
+                console.print("  No versions found")
+        
+        if jdk:
+            console.print(f"☕ Available {vendor.title()} JDK Versions:")
+            downloader = JdkDownloader()
+            versions = downloader.list_available_versions(vendor)
+            if versions:
+                for version in versions[:15]:  # Show first 15
+                    console.print(f"  • {version}")
+                if len(versions) > 15:
+                    console.print(f"  ... and {len(versions) - 15} more")
+            else:
+                console.print("  No versions found")
+                
+    except Exception as e:
+        err_console.print(f"❌ Failed to list remote versions: {e}")
+        raise typer.Exit(code=1)
 
 
 if __name__ == "__main__":
