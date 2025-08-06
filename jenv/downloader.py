@@ -15,6 +15,7 @@ import json
 import logging
 import subprocess
 import os
+import tempfile
 
 from jenv.settings import VERSIONS_DIR
 
@@ -191,7 +192,7 @@ class JdkDownloader:
     
     def _download_file(self, url: str, filename: str) -> Path:
         """Download a file from URL."""
-        download_path = Path("/tmp") / filename
+        download_path = Path(tempfile.gettempdir()) / filename
         
         try:
             logger.info(f"Downloading {filename}...")
@@ -303,7 +304,7 @@ class MavenDownloader:
     
     def _download_file(self, url: str, filename: str) -> Path:
         """Download a file from URL."""
-        download_path = Path("/tmp") / filename
+        download_path = Path(tempfile.gettempdir()) / filename
         
         try:
             logger.info(f"Downloading {filename}...")
